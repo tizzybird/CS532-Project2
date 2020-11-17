@@ -46,8 +46,8 @@ def classify():
     res = {'message': 'no input image'}
     if request.method == 'POST':
         image = request.files['image']
-        image_bytes = image.read()
-        class_id, class_name = predict(image_bytes=image_bytes)
+        raw_image = image.read()
+        class_id, class_name = predict(image_bytes=raw_image)
         res = {'class_id': class_id, 'class_name': class_name}
     
     return jsonify(res)
