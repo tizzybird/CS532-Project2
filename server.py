@@ -6,6 +6,10 @@ from PIL import Image
 
 import json, io
 
+with open('config.json') as f:
+    CONFIG = json.load(f)
+
+# Used for mapping prediction to a corresponding class
 imagenet_class_index = json.load(open('imagenet_class_index.json'))
 
 model = torch.hub.load('pytorch/vision:v0.6.0', 'densenet121', pretrained=True)
@@ -13,7 +17,8 @@ model.eval()
 
 app = Flask(__name__)
 
-
+# Function for classifying the input image
+# returns a class id and a name of animal
 def predict(image_bytes):
     image = Image.open(io.BytesIO(image_bytes))
     transform_func = transforms.Compose([transforms.Resize(255),
@@ -30,7 +35,11 @@ def predict(image_bytes):
 
     return imagenet_class_index[predicted_idx]
 
-
+# Function for receiving HTTP requests
+# if receiving a GET request, it returns 'no input image' message
+# if receiving a POST request with an image appended in the 'image' field,
+# it returns a class_id and a class_name including the name of the animal
+# in the image
 @app.route('/', methods=['POST', 'GET'])
 def classify():
     print('Request is received!')
@@ -45,4 +54,4 @@ def classify():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000')
+    app.run(host=CONFIG['addr'], port=CONFIG['port'])
